@@ -1,0 +1,117 @@
+/* ============================================================
+   MINI OVERLAY HOLOGRÁFICO – ESTILO TACTILE GLASS
+   ============================================================ */
+
+#mini-holo {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  width: 320px;
+  max-height: 55vh;
+
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  padding: 16px;
+  border-radius: 20px; /* Bordes más suaves */
+
+  /* Estilo Tactile Glass Premium */
+  background: rgba(15, 23, 42, 0.95); /* Fondo oscuro sólido pero translúcido */
+  backdrop-filter: blur(20px) saturate(120%);
+  -webkit-backdrop-filter: blur(20px);
+
+  border: 1px solid rgba(255, 255, 255, 0.1); /* Borde sutil blanco */
+  box-shadow: 
+      0 20px 40px -10px rgba(0, 0, 0, 0.6), /* Sombra profunda */
+      inset 0 1px 0 rgba(255, 255, 255, 0.1); /* Brillo superior interno */
+
+  overflow-y: auto;
+  z-index: 999999;
+
+  opacity: 0;
+  transform: translateY(30px) scale(0.95);
+  /* Animación elástica premium */
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+#mini-holo.show {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+#mini-holo-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #38bdf8; /* Azul Sky Profesional */
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  text-shadow: none; /* Eliminado el neón */
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1); /* Línea separadora */
+  margin-bottom: 4px;
+}
+
+.holo-item {
+  background: rgba(30, 41, 59, 0.6); /* Slate semitransparente */
+  padding: 12px 14px;
+  border-radius: 12px;
+
+  font-size: 0.95rem;
+  color: #f1f5f9; /* Blanco hueso */
+  border: 1px solid rgba(255, 255, 255, 0.05); /* Borde casi invisible */
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Sombra 3D pequeña */
+
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  opacity: 0;
+  transform: translateX(20px);
+  animation: holo-enter 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.holo-icon {
+  color: #38bdf8; /* Azul Sky */
+  font-size: 1.1rem;
+  text-shadow: none;
+  /* Pequeño fondo para el icono */
+  background: rgba(56, 189, 248, 0.15);
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+}
+
+@keyframes holo-enter {
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* botón limpiar */
+#mini-holo-clear {
+  background: rgba(225, 29, 72, 0.15); /* Rojo sutil profesional */
+  border: 1px solid rgba(225, 29, 72, 0.3);
+  color: #fda4af; /* Texto rosado claro */
+  padding: 8px 16px;
+
+  border-radius: 10px;
+  cursor: pointer;
+
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-top: 8px;
+  align-self: flex-end; /* Alineado a la derecha */
+
+  transition: all 0.2s ease;
+}
+
+#mini-holo-clear:hover {
+  background: rgba(225, 29, 72, 0.25);
+  border-color: rgba(225, 29, 72, 0.5);
+  transform: translateY(-2px); /* Pequeño salto táctil */
+}

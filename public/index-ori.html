@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Keyon Access SystemV3</title>
+<link rel="stylesheet" href="style.css?v=1.23">
+<link rel="stylesheet" href="mini-overlay-futurista.css?v=2">
+<link rel="icon" type="image/png" href="assets/favicon-96x96.png" sizes="96x96" />
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+<link rel="shortcut icon" href="assets/favicon.ico" />
+<link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png" />
+<meta name="apple-mobile-web-app-title" content="MyWebSite" />
+<link rel="manifest" href="assets/site.webmanifest" />
+</head>
+<body>
+<!-- Grid animada + fog holográfico -->
+<div id="holo-grid"></div>
+<div id="holo-fog"></div>
+
+<!-- Partículas globales -->
+<canvas id="bg-particles"></canvas>
+
+<!-- =====================================================
+   BIENVENIDA INSTITUCIONAL — VERSIÓN B (sin parallax)
+===================================================== -->
+<div id="overlay-bienvenida" class="cbtisB-overlay">
+    
+    <!-- Fondo institucional con fade -->
+    <div class="cbtisB-slideshow">
+        <img src="assets/cbtis1.jpg" class="cbtisB-slide">
+        <img src="assets/cbtis2.jpg" class="cbtisB-slide">
+        <img src="assets/cbtis3.jpg" class="cbtisB-slide">
+    </div>
+
+    <!-- Capa azul institucional -->
+    <div class="cbtisB-overlay-azul"></div>
+
+    <!-- Grid IA institucional -->
+    <div class="cbtisB-gridIA"></div>
+
+    <!-- Caja principal premium -->
+    <div class="cbtisB-box">
+        <img src="assets/CBTIS501.png" class="cbtisB-logo" alt="CBTis 001">
+
+        <h1 class="cbtisB-title">Bienvenido</h1>
+        <p class="cbtisB-sub">Sistema Institucional de Asistencias</p>
+
+        <button id="btn-continuar-bienvenida" class="cbtisB-btn">
+            Ingresar
+            <span class="cbtisB-btn-glow"></span>
+        </button>
+    </div>
+</div>
+
+
+
+<style>
+/* ======================================================
+   AISLAMIENTO COMPLETO
+====================================================== */
+#overlay-bienvenida,
+#overlay-bienvenida * {
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif !important;
+}
+
+/* ======================================================
+   OVERLAY GENERAL
+====================================================== */
+.cbtisB-overlay {
+    position: fixed;
+    inset: 0;
+    background: #071a2f;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 20000;
+    overflow: hidden;
+}
+
+/* ======================================================
+   FONDO SLIDESHOW (sin parallax)
+====================================================== */
+.cbtisB-slideshow {
+    position: absolute;
+    inset: 0;
+    z-index: -4;
+}
+
+.cbtisB-slide {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+
+    filter: brightness(1.35) contrast(1.12) saturate(1.05);
+
+    opacity: 0;
+
+    animation: cbtisBfade 22s infinite;
+}
+
+@keyframes cbtisBfade {
+    0% { opacity: 0; }
+    8% { opacity: 1; }
+    34% { opacity: 1; }
+    45% { opacity: 0; }
+    100% { opacity: 0; }
+}
+
+.cbtisB-slide:nth-child(1) { animation-delay: 0s; }
+.cbtisB-slide:nth-child(2) { animation-delay: 7s; }
+.cbtisB-slide:nth-child(3) { animation-delay: 14s; }
+
+/* ======================================================
+   CAPA AZUL
+====================================================== */
+.cbtisB-overlay-azul {
+    position: absolute;
+    inset: 0;
+    background: rgba(7, 22, 43, 0.18) !important;
+backdrop-filter: blur(2px) !important;
+
+    z-index: -3;
+}
+
+/* ======================================================
+   GRID IA
+====================================================== */
+.cbtisB-gridIA {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.12) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.12) 1px, transparent 1px);
+    background-size: 70px 70px;
+    opacity: 0.07;
+    animation: cbtisBgridMove 18s linear infinite;
+    z-index: -2;
+}
+
+@keyframes cbtisBgridMove {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(70px); }
+}
+
+/* ======================================================
+   CAJA PREMIUM CON EFECTO 3D SUAVE
+====================================================== */
+.cbtisB-box {
+    width: 90%;
+    max-width: 520px;
+    padding: 55px 60px;
+
+    background: rgba(255,255,255,0.45);
+backdrop-filter: blur(28px);
+
+    backdrop-filter: blur(18px);
+
+    border-radius: 25px;
+    border: 1px solid rgba(255,255,255,0.55);
+
+    box-shadow:
+        0 15px 45px rgba(0,0,0,0.25),
+        inset 0 0 15px rgba(255,255,255,0.15);
+
+    text-align: center;
+    animation: cbtisBboxIn 0.9s ease-out;
+}
+
+@keyframes cbtisBboxIn {
+    0% { transform: translateY(25px) scale(0.97); opacity: 0; }
+    100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+.cbtisB-logo {
+    width: 130px;
+    margin-bottom: 18px;
+    filter: drop-shadow(0 4px 12px rgba(0,0,0,0.25));
+}
+
+.cbtisB-title {
+    all: unset;
+    display: block;
+    font-family: "Poppins", sans-serif !important;
+    font-size: 2.8rem !important;
+    font-weight: 900 !important;
+    color: #0c3566 !important;
+    letter-spacing: -1px !important;
+    text-align: center;
+}
+
+.cbtisB-sub {
+    margin-top: 10px;
+    font-size: 1.15rem;
+    color: #123159;
+    opacity: 0.9;
+    margin-bottom: 40px;
+}
+
+/* ======================================================
+   BOTÓN 3D PREMIUM
+====================================================== */
+.cbtisB-btn {
+    position: relative;
+    padding: 16px 38px;
+
+    background: linear-gradient(135deg, #0c3566, #0e4686);
+    border: none;
+    border-radius: 14px;
+    color: white;
+
+    font-weight: 700;
+    font-size: 1.15rem;
+
+    cursor: pointer;
+    overflow: hidden;
+
+    transition: 0.28s ease;
+    box-shadow: 0 10px 25px rgba(12, 53, 102, 0.35);
+}
+
+.cbtisB-btn:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 18px 35px rgba(12, 53, 102, 0.45);
+}
+
+.cbtisB-btn-glow {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle, rgba(255,255,255,0.35), transparent 70%);
+    opacity: 0;
+    animation: cbtisBglow 2.8s infinite ease-in-out;
+}
+
+@keyframes cbtisBglow {
+    0%,100% { opacity: 0.15; }
+    50% { opacity: 0.55; }
+}
+
+/* ======================================================
+   RESPONSIVE
+====================================================== */
+@media (max-width: 768px) {
+    .cbtisB-box { padding: 40px 30px; }
+    .cbtisB-title { font-size: 2.2rem; }
+    .cbtisB-logo { width: 105px; }
+}
+
+@media (max-width: 480px) {
+    .cbtisB-box { padding: 32px 22px; }
+    .cbtisB-title { font-size: 1.9rem; }
+    .cbtisB-btn { width: 100%; }
+}
+
+
+
+</style>
+
+
+
+<script>
+/* ============================================================
+   PARTÍCULAS GLOBAL TIPO NEURAL-NET EXARA
+   ============================================================ */
+const canvasBG = document.getElementById("bg-particles");
+const ctxBG = canvasBG.getContext("2d");
+let particlesBG = [];
+
+function resizeBG() {
+  canvasBG.width = window.innerWidth;
+  canvasBG.height = window.innerHeight;
+}
+resizeBG();
+window.addEventListener("resize", resizeBG);
+
+for (let i = 0; i < 80; i++) {
+  particlesBG.push({
+    x: Math.random() * canvasBG.width,
+    y: Math.random() * canvasBG.height,
+    r: Math.random() * 2 + 1,
+    dx: (Math.random() - 0.5) * 0.4,
+    dy: (Math.random() - 0.5) * 0.4
+  });
+}
+
+function animateParticlesBG() {
+  ctxBG.clearRect(0, 0, canvasBG.width, canvasBG.height);
+
+  particlesBG.forEach(p => {
+    ctxBG.beginPath();
+    ctxBG.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    ctxBG.fillStyle = "rgba(56,189,248,0.45)";
+    ctxBG.fill();
+
+    p.x += p.dx;
+    p.y += p.dy;
+
+    if (p.x < 0 || p.x > canvasBG.width) p.dx *= -1;
+    if (p.y < 0 || p.y > canvasBG.height) p.dy *= -1;
+  });
+
+  requestAnimationFrame(animateParticlesBG);
+}
+animateParticlesBG();
+
+
+/* ============================================================
+   PARALLAX 3D REALTIME
+   ============================================================ */
+document.addEventListener("mousemove", e => {
+  const x = (e.clientX / window.innerWidth - 0.5) * 15;
+  const y = (e.clientY / window.innerHeight - 0.5) * 15;
+
+  document.querySelectorAll(".parallax").forEach(el => {
+    el.style.transform = `rotateX(${y}deg) rotateY(${-x}deg)`;
+  });
+});
+
+
+
+</script>
+
+
+<h1>Keyon Access System</h1>
+
+<!-- Overlay selección de rol -->
+<div id="overlay-rol">
+  <h2>🔐 Selecciona tu rol</h2>
+  <div class="roles">
+    <button class="rol-btn" data-rol="Alumno">👨‍🎓 Alumno</button>
+    <button class="rol-btn" data-rol="Profesor">👩‍🏫 Profesor</button>
+    <button class="rol-btn" data-rol="Admin">👑 Admin</button>
+  </div>
+
+  <div id="password-container" style="display:none;">
+    <input type="password" id="password-rol" placeholder="Ingresa tu contraseña">
+    <button id="btn-entrar">Entrar</button>
+    <div id="error-rol"></div>
+  </div>
+</div>
+
+<!-- LOGIN FUTURISTA PREMIUM -->
+<div id="overlay-login" class="login-hidden">
+    <canvas id="login-particles"></canvas>
+
+    <div class="login-glass">
+        <img src="assets/CBTIS501.png" class="login-logo" alt="Logo">
+
+        <h2 class="login-title">Acceso Seguro</h2>
+        <p class="login-sub">Ingresa tu código de alumno</p>
+
+        <div class="login-input-box">
+            <input type="text" id="login-code" placeholder="Código / Matrícula">
+            <span class="login-focus"></span>
+        </div>
+
+        <button id="login-btn">Ingresar</button>
+
+        <p class="login-footer">CBTis 001 — Sistema Inteligente</p>
+    </div>
+</div>
+
+
+<!-- Overlay de escaneo -->
+<!-- Overlay de escaneo -->
+<div id="overlay" class="overlay">
+  <div id="overlay-content">
+    <h2 id="overlay-titulo">📷 Escaneando QR...</h2>
+    <div id="video-container">
+      <div id="video" style="width:100%; max-width:400px; height:300px; border: 2px solid #00aaff; border-radius:12px; margin:auto;"></div>
+    </div>
+    <p id="prof-scan-status">Apunta el QR del alumno</p>
+  </div>
+</div>
+
+<!-- Overlay de mensajes (éxito, error, advertencia, info) -->
+<div id="overlay-msg" class="overlay" style="display:none;">
+  <div class="overlay-content">
+    <h2 id="overlay-msg-titulo">✅ Escaneo exitoso</h2>
+    <p id="overlay-msg-info">Alumno registrado correctamente.</p>
+  </div>
+</div>
+
+
+<!-- Panel Alumno -->
+<!-- Tu HTML del panel alumno -->
+<section id="panel-alumno" style="display:none;">
+  <h3>Generador QR Alumno</h3>
+  <input type="text" id="alumno-nombre" placeholder="Nombre (s)">
+  <input type="text" id="alumno-apellidos" placeholder="Apellidos">
+  <input type="text" id="alumno-grado" placeholder="Grado y Grupo">
+  <input type="text" id="alumno-control" placeholder="N/O de Control Escolar">
+  <input type="text" id="alumno-whatsapp" placeholder="WhatsApp">
+
+  <div id="alumno-qrcode"></div>
+  <svg id="alumno-barcode"></svg>
+
+  <button id="btnAlumnoQRCamara">Generar QR cámara</button>
+  <button id="btnAlumnoQRLector">Generar código de barras</button>
+  <button id="alumno-descargar">⬇️ Download QR/Barcode</button>
+
+
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const btn = document.getElementById("btnAbrirPanelCBTis");
+
+  // 💫 Efecto de hover sutil
+  btn.addEventListener("mouseenter", () => btn.style.opacity = "1");
+  btn.addEventListener("mouseleave", () => btn.style.opacity = "0.6");
+
+  // 🔐 Atajo secreto: Ctrl + Alt + C
+  document.addEventListener("keydown", e => {
+    if (e.ctrlKey && e.altKey && e.key.toLowerCase() === "c") {
+      if (btn.style.display === "none") {
+        btn.style.display = "block";
+        btn.style.opacity = "0.6";
+        btn.style.transform = "scale(1)";
+      } else {
+        btn.style.display = "none";
+      }
+    }
+  });
+
+  // 🖱️ Click para abrir el panel CBTis
+  btn.addEventListener("click", () => {
+    try {
+      if (typeof InitPanelCBTis === "function") {
+        InitPanelCBTis();
+        console.log("✅ Panel CBTis abierto desde botón secreto");
+      } else {
+        console.warn("⚠️ Función InitPanelCBTis no encontrada");
+      }
+    } catch (err) {
+      console.error("❌ Error al abrir Panel CBTis:", err);
+    }
+  });
+});
+</script>
+</section>
+
+
+<!-- Panel Profesor -->
+<section id="panel-profesor" style="display:none;">
+  <!-- 🔒 Botón oculto para abrir Panel CBTis -->
+<!-- ⚙️ Botón oculto para abrir el Panel CBTis -->
+<button id="btnAbrirPanelCBTis" 
+  style="display:none; position:fixed; top:10px; right:10px; 
+         background:rgba(0,0,0,0.2); color:white; border:none; 
+         border-radius:50%; width:40px; height:40px; 
+         cursor:pointer; font-size:20px; z-index:9999; 
+         backdrop-filter:blur(3px); transition:opacity .3s, transform .2s;">
+  ⚙️
+</button>
+
+  <h3>Generador QR Profesor</h3>
+  <input type="text" id="prof-nombre" placeholder="Nombre (s)">
+  <input type="text" id="prof-apellidos" placeholder="Apellidos">
+  <input type="text" id="prof-materias" placeholder="Materias (Sin espacios)">
+  <input type="text" id="prof-grupos" placeholder="Grupos (Sin espacios)">
+  <input type="text" id="prof-telefono" placeholder="Teléfono (Sin espacios)">
+
+  <!-- Contenedor QR -->
+  <div id="prof-qrcode"></div>
+
+  <!-- Contenedor para código de barras -->
+  <svg id="prof-barcode"></svg>
+
+  <button id="btnProfQRCamara">Generar QR cámara</button>
+  <button id="btnProfQRLector">Generar código de barras</button>
+  <button id="prof-descargar">⬇️ Descargar QR</button>
+
+
+<!-- Mini-overlay de alumnos escaneados -->
+<div id="overlay-mini" style="
+  display:none;
+  position:fixed;
+  bottom:20px;
+  right:20px;
+  background:#fff;
+  border:1px solid #333;
+  padding:10px;
+  border-radius:8px;
+  max-width:250px;
+  max-height:200px;
+  overflow:auto;
+  box-shadow:0 4px 8px rgba(0,0,0,0.2);
+  font-size:0.9em;
+  z-index:9999;
+">
+  <strong>Alumnos Escaneados:</strong>
+  <ul id="lista-mini-alumnos" style="padding-left:15px; margin-top:5px;"></ul>
+  <button id="btn-limpiar-overlay" style="margin-top:5px; font-size:0.8em;">🧹 Limpiar lista</button>
+  <!-- Botón para finalizar clase y exportar Excel -->
+<button id="btn-finalizar-clase" style="margin-top:10px; font-size:1em;">
+  🏁 Finalizar Clase
+</button>
+
+</div>
+
+  <!-- Escáner para profesor -->
+  <h3>Escáner de alumnos</h3>
+  <div id="qr-reader" style="width:400px; height:400px; border: 2px solid #000;"></div>
+  <p id="prof-scan-status">Apunta el QR del alumno</p>
+
+    <!-- Panel de mensajes principal -->
+  <div id="panel-aviso">
+    Por favor, Profesor registre su  QR o código de barras
+  </div>
+
+  <div class="modo-selector">
+    <button onclick="activarModoCamara()">📷 Activar Camara</button>
+    <button onclick="activarModoLector()">🔌 Activar lector Qr</button>
+  </div>
+
+  <!-- input lector: fuera del flujo -->
+<input 
+  id="input-lector" 
+  type="text" 
+  placeholder="Escanea código"
+  autofocus
+  style="
+    width: 250px;
+    height: 40px;
+    font-size: 16px;
+    padding: 6px 10px;
+    border: 2px solid #0078d7;
+    border-radius: 8px;
+    outline: none;
+  "
+/>
+
+
+</section>
+
+<style>
+  #input-lector {
+  position: fixed;
+  top: -100px; /* fuera de la vista */
+  left: -100px;
+  opacity: 0; /* invisible pero sigue en el DOM */
+  pointer-events: none;
+}
+</style>
+
+
+
+<script>
+const input = document.getElementById("input-lector");
+
+window.addEventListener("load", () => {
+  input.focus();
+  console.log("🔵 Lector listo");
+});
+
+// Refuerza foco cada 5 segundos por si el usuario hace clic fuera
+setInterval(() => {
+  if (document.activeElement !== input) {
+    input.focus();
+    console.log("🟢 Foco recuperado");
+  }
+}, 10000);
+
+// Detecta cuando se escanea algo
+input.addEventListener("input", (e) => {
+  const codigo = e.target.value.trim();
+  if (codigo.length > 3 && codigo.endsWith("\n")) return; // evitar falsos enter
+});
+
+// Detecta Enter (fin de escaneo)
+input.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    const codigo = input.value.trim();
+    if (codigo !== "") {
+      console.log("✅ Escaneado:", codigo);
+      manejarCodigo(codigo);
+      input.value = "";
+    }
+  }
+});
+
+function manejarCodigo(codigo) {
+  // Aquí va tu lógica: buscar profesor, marcar asistencia, etc.
+  console.log("📚 Procesando código:", codigo);
+}
+</script>
+
+
+
+
+<!-- Panel Admin -->
+<section id="panel-admin" style="display:none;">
+  <h2>🛠 Panel Admin</h2>
+  <button id="btn-export-usuarios">⬇ Exportar Usuarios CSV</button>
+  <button id="btn-export-registros">⬇ Exportar Registros CSV</button>
+  <div id="admin-log"></div>
+
+  <div class="cards-container">
+    <div class="card" id="card-alumnos">🎓 Total alumnos: 0</div>
+    <div class="card" id="card-profesores">👩‍🏫 Total profesores: 0</div>
+    <div class="card" id="card-registros-hoy">📋 Registros hoy: 0</div>
+    <div class="card" id="card-usuarios-activos">✅ Usuarios activos: 0</div>
+  </div>
+
+<!-- Tabla de usuarios -->
+<div class="table-container">
+  <h3>Usuarios</h3>
+  <input type="text" id="buscar-usuario" placeholder="Buscar usuario...">
+  <table id="usuarios-table">
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Apellidos</th>
+        <th>Tipo</th>
+        <th>Grado</th>        <!-- Solo alumnos -->
+        <th>Grupo</th>        <!-- Solo profesores -->
+        <th>Control</th>      <!-- Solo alumnos -->
+        <th>Materias</th>     <!-- Solo profesores -->
+        <th>Teléfono / WhatsApp</th>
+        <th>Descargar QR</th>       <!-- Nueva columna -->
+        <th>Descargar Código</th>   <!-- Nueva columna -->
+        <th>Acciones</th>           <!-- Solo eliminar -->
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
+
+<section id="exportarAccesosContainer">
+  <h3>📊 Registros Entrada/Salida CBTis</h3>
+  <label for="filtroFechaAccesos">Filtrar por fecha:</label>
+  <input type="date" id="filtroFechaAccesos">
+  
+  <button id="btnExportarAccesos">
+    📤 Exportar accesos a Excel
+  </button>
+</section>
+
+
+
+  <!-- Tabla de registros -->
+  <div class="table-container">
+    <h3>Registros de asistencia</h3>
+    <input type="date" id="filtro-fecha">
+    <table id="registros-table">
+      <thead>
+        <tr>
+          <th>Fecha</th>
+          <th>Hora</th>
+          <th>Tipo</th>
+          <th>Nombre</th>
+          <th>Profesor</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <div id="panel-admin-realtime" class="panel-admin">
+  <h3>📊 Panel de Asistencia en Tiempo Real</h3>
+  <canvas id="grafica-asistencia"></canvas>
+  <div id="resumen-asistencia"></div>
+</div>
+
+<!-- =============================
+     🔍 Panel de Clases Activas
+============================= -->
+<div id="panel-clases-activas">
+  <h3>📚 Clases Activas</h3>
+  <ul id="lista-clases-activas"></ul>
+</div>
+
+<!-- =============================
+     📊 Gráfica del Aula Seleccionada
+============================= -->
+<div id="panel-grafica-aula" style="display:none;">
+  <h3 id="titulo-grafica-aula">📈 Estadísticas del Aula</h3>
+  <canvas id="grafica-aula" style="max-width:600px;"></canvas>
+  <div id="resumen-aula"></div>
+  <button id="btn-volver-general">⬅ Volver a vista general</button>
+</div>
+
+
+  <!-- Historial de escaneos en tiempo real -->
+  <div id="historial-admin">
+    <h4>📋 Últimos escaneos</h4>
+    <ul id="historial-list-admin"></ul>
+    <button id="export-historial-admin">⬇ Exportar historial</button>
+  </div>
+</section>
+<!-- Historial QR -->
+<section id="historial" style="display:none;">
+  <h2>📋 Historial de Escaneos</h2>
+  <ul id="historial-list"></ul>
+</section>
+
+
+
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+<script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+<script src="js/firebase-config.js"></script>
+<script src="js/dom-elements.js"></script>
+
+<script src="js/roles.js"></script>
+<script src="js/audios.js"></script>
+
+<script src="js/qr-barcode.js"></script>
+<script src="js/overlays.js"></script>
+<script src="js/iniciar-clase.js?v=2"></script>
+<script src="js/scanner.js"></script>
+<script src="js/procesar-qr.js"></script>
+
+<script src="js/admin-panel.js?v=2.1"></script>
+<script src="js/admin-grafica.js"></script>
+<script src="js/acceso-cbtis.js"></script>
+
+<script src="js/main.js"></script>
+
+</body>
+</html>
