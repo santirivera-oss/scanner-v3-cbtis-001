@@ -289,7 +289,7 @@ Este proyecto está bajo la Licencia MIT. Ver el archivo [LICENSE](LICENSE) para
 **Santiago Rivera**
 
 - GitHub: [@santirivera-oss](https://github.com/santirivera-oss?tab=overview&from=2025-12-01&to=2025-12-15)
-- SitioWeb: [Santiago Rivera](https://exara.uk)
+- SitioWeb: [Exara.uk](https://exara.uk)
 - Email:  contacto@exara.uk
 ---
 
