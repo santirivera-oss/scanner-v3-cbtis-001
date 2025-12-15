@@ -1045,4 +1045,138 @@ document.addEventListener('DOMContentLoaded', () => {
       observer.observe(parent, { attributes: true });
     }
   }
+  
+  // Observer para config-alumno (perfil)
+  const configAlumno = document.getElementById('config-alumno');
+  if (configAlumno) {
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.attributeName === 'class' && !configAlumno.classList.contains('hidden')) {
+          cargarPerfilCompletoAlumno();
+        }
+      });
+    });
+    observer.observe(configAlumno, { attributes: true });
+  }
 });
+
+// ========================
+// 👤 CARGAR PERFIL COMPLETO DEL ALUMNO
+// ========================
+async function cargarPerfilCompletoAlumno() {
+  const alumno = window.usuarioActual;
+  if (!alumno || alumno.tipo !== 'Alumno') return;
+  
+  const usuarioId = alumno.control || alumno.id;
+  
+  try {
+    // Cargar datos actualizados de Firebase
+    const doc = await db.collection('alumnos').doc(usuarioId).get();
+    const datos = doc.exists ? doc.data() : alumno;
+    
+    // Avatar
+    const avatarEl = document.getElementById('avatar-perfil-alumno');
+    if (avatarEl) {
+      const iniciales = `${(datos.nombre || '').charAt(0)}${(datos.apellidos || '').charAt(0)}`.toUpperCase() || '--';
+      avatarEl.textContent = iniciales;
+    }
+    
+    // Nombre completo
+    const nombreEl = document.getElementById('nombre-perfil-alumno');
+    if (nombreEl) {
+      nombreEl.textContent = `${datos.nombre || ''} ${datos.apellidos || ''}`.trim() || 'Sin nombre';
+    }
+    
+    // Turno
+    const turnoEl = document.getElementById('turno-perfil-alumno');
+    if (turnoEl) {
+      turnoEl.textContent = datos.turno || 'Turno no especificado';
+    }
+    
+    // Datos en la grid
+    const configNombre = document.getElementById('config-nombre-alumno');
+    if (configNombre) configNombre.textContent = `${datos.nombre || ''} ${datos.apellidos || ''}`.trim() || '-';
+    
+    const configControl = document.getElementById('config-control-alumno');
+    if (configControl) configControl.textContent = datos.control || usuarioId || '-';
+    
+    const configGrado = document.getElementById('config-grado-alumno');
+    if (configGrado) configGrado.textContent = `${datos.grado || '-'}° ${datos.grupo || '-'}`;
+    
+    const configEspecialidad = document.getElementById('config-especialidad-alumno');
+    if (configEspecialidad) configEspecialidad.textContent = datos.especialidad || datos.carrera || 'No especificada';
+    
+    const configWhatsapp = document.getElementById('config-whatsapp-alumno');
+    if (configWhatsapp) configWhatsapp.textContent = datos.whatsapp || datos.telefono || 'No registrado';
+    
+    const configFecha = document.getElementById('config-fecha-registro-alumno');
+    if (configFecha) {
+      const fecha = datos.fechaRegistro?.toDate?.() || datos.createdAt?.toDate?.();
+      configFecha.textContent = fecha ? fecha.toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' }) : 'No disponible';
+    }
+    
+    // Cargar estadísticas rápidas
+    await cargarEstadisticasPerfilAlumno(usuarioId);
+    
+  } catch (error) {
+    console.error('Error cargando perfil alumno:', error);
+  }
+}
+
+/**
+ * Carga las estadísticas rápidas del perfil del alumno
+ */
+async function cargarEstadisticasPerfilAlumno(alumnoId) {
+  try {
+    // Obtener sesiones del alumno
+    const sesionesSnap = await db.collection('sesiones')
+      .where('estado', '==', 'Finalizada')
+      .orderBy('fecha', 'desc')
+      .limit(100)
+      .get();
+    
+    let totalClases = 0;
+    let asistencias = 0;
+    let puntuales = 0;
+    
+    sesionesSnap.forEach(doc => {
+      const sesion = doc.data();
+      const alumnos = sesion.alumnos || {};
+      
+      // Buscar al alumno en esta sesión
+      const alumnoEnSesion = Object.values(alumnos).find(a => 
+        a.control === alumnoId || a.id === alumnoId
+      );
+      
+      if (alumnoEnSesion) {
+        totalClases++;
+        if (alumnoEnSesion.estado === 'Presente' || alumnoEnSesion.estado === 'Tardanza') {
+          asistencias++;
+        }
+        if (alumnoEnSesion.estado === 'Presente') {
+          puntuales++;
+        }
+      }
+    });
+    
+    // Calcular porcentajes
+    const porcentajeAsistencia = totalClases > 0 ? Math.round((asistencias / totalClases) * 100) : 0;
+    const porcentajePuntualidad = asistencias > 0 ? Math.round((puntuales / asistencias) * 100) : 0;
+    
+    // Actualizar UI
+    const asistenciaEl = document.getElementById('perfil-asistencia-alumno');
+    if (asistenciaEl) asistenciaEl.textContent = `${porcentajeAsistencia}%`;
+    
+    const puntualidadEl = document.getElementById('perfil-puntualidad-alumno');
+    if (puntualidadEl) puntualidadEl.textContent = `${porcentajePuntualidad}%`;
+    
+    const clasesEl = document.getElementById('perfil-clases-alumno');
+    if (clasesEl) clasesEl.textContent = totalClases;
+    
+  } catch (error) {
+    console.error('Error cargando estadísticas perfil:', error);
+  }
+}
+
+// Exportar funciones
+window.cargarPerfilCompletoAlumno = cargarPerfilCompletoAlumno;

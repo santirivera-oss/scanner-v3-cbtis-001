@@ -1157,3 +1157,296 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 console.log('🎭 Sistema de Reconocimiento Facial cargado');
+
+// ========================
+// 🎓 FUNCIONES PARA ALUMNO (VERIFICACIÓN)
+// ========================
+
+/**
+ * Actualiza la UI de estado facial para ALUMNO (nuevo sistema)
+ */
+window.actualizarEstadoFacialAlumno = async function() {
+  const usuario = window.usuarioActual;
+  if (!usuario || usuario.tipo !== 'Alumno') return;
+  
+  const usuarioId = usuario.control || usuario.id;
+  
+  try {
+    const doc = await db.collection('alumnos').doc(usuarioId).get();
+    
+    const iconoEstado = document.getElementById('facial-icono-estado');
+    const textoEstado = document.getElementById('facial-estado-texto');
+    const infoRegistro = document.getElementById('facial-info-registro');
+    const btnVerificar = document.getElementById('btn-verificar-cara');
+    const msgVerificado = document.getElementById('facial-verificado-msg');
+    const msgSinRegistro = document.getElementById('facial-sin-registro-msg');
+    
+    // Ocultar todo primero
+    if (infoRegistro) infoRegistro.classList.add('hidden');
+    if (btnVerificar) btnVerificar.classList.add('hidden');
+    if (msgVerificado) msgVerificado.classList.add('hidden');
+    if (msgSinRegistro) msgSinRegistro.classList.add('hidden');
+    
+    if (!doc.exists || !doc.data().reconocimientoFacial?.activo) {
+      // Sin registro
+      if (iconoEstado) iconoEstado.textContent = '❌';
+      if (textoEstado) {
+        textoEstado.textContent = 'Sin registro facial';
+        textoEstado.style.color = '#f87171';
+      }
+      if (msgSinRegistro) msgSinRegistro.classList.remove('hidden');
+      return;
+    }
+    
+    const facial = doc.data().reconocimientoFacial;
+    
+    // Mostrar info del registro
+    if (infoRegistro) {
+      infoRegistro.classList.remove('hidden');
+      const regPor = document.getElementById('facial-registrado-por');
+      const fechaReg = document.getElementById('facial-fecha-registro');
+      const fechaVer = document.getElementById('facial-fecha-verificacion');
+      
+      if (regPor) regPor.textContent = facial.registradoPor || 'Admin';
+      if (fechaReg) fechaReg.textContent = facial.fechaRegistro?.toDate?.()?.toLocaleDateString('es-MX') || '-';
+      if (fechaVer) fechaVer.textContent = facial.fechaVerificacion?.toDate?.()?.toLocaleDateString('es-MX') || 'Pendiente';
+    }
+    
+    if (facial.verificado) {
+      // Verificado
+      if (iconoEstado) iconoEstado.textContent = '✅';
+      if (textoEstado) {
+        textoEstado.textContent = 'Registro verificado';
+        textoEstado.style.color = '#10b981';
+      }
+      if (msgVerificado) msgVerificado.classList.remove('hidden');
+    } else {
+      // Pendiente verificación
+      if (iconoEstado) iconoEstado.textContent = '⏳';
+      if (textoEstado) {
+        textoEstado.textContent = 'Pendiente verificación';
+        textoEstado.style.color = '#fbbf24';
+      }
+      if (btnVerificar) btnVerificar.classList.remove('hidden');
+    }
+    
+  } catch (error) {
+    console.error('Error verificando estado facial alumno:', error);
+  }
+};
+
+/**
+ * Verificación facial del alumno
+ */
+window.verificarMiRegistroFacial = async function() {
+  const usuario = window.usuarioActual;
+  if (!usuario || usuario.tipo !== 'Alumno') {
+    mostrarNotificacion('⚠️ Solo alumnos pueden verificar su registro', 'warning');
+    return;
+  }
+  
+  mostrarNotificacion('🎭 Preparando verificación...', 'info');
+  const cargado = await cargarModelosFaciales();
+  if (!cargado) return;
+  
+  const usuarioId = usuario.control || usuario.id;
+  const doc = await db.collection('alumnos').doc(usuarioId).get();
+  
+  if (!doc.exists || !doc.data().reconocimientoFacial?.descriptor) {
+    mostrarNotificacion('❌ No hay registro facial para verificar', 'error');
+    return;
+  }
+  
+  const descriptorGuardado = new Float32Array(doc.data().reconocimientoFacial.descriptor);
+  
+  const modal = document.createElement('div');
+  modal.id = 'modal-verificar-facial';
+  modal.style.cssText = 'position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:9999; overflow-y:auto;';
+  modal.innerHTML = `
+    <div style="min-height:100%; padding:16px; display:flex; flex-direction:column;">
+      <div style="background:rgba(30,41,59,0.95); border-radius:12px; padding:16px; margin-bottom:16px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:10;">
+        <h3 style="font-size:18px; font-weight:bold; color:#f1f5f9;">✅ Verificar mi Registro</h3>
+        <button onclick="cerrarVerificacionFacial()" style="padding:12px; background:#ef4444; border-radius:8px; border:none; cursor:pointer;">
+          <svg width="24" height="24" fill="none" stroke="white" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+      
+      <div style="max-width:400px; margin:0 auto; width:100%;">
+        <div style="background:rgba(6,182,212,0.1); border:1px solid rgba(6,182,212,0.3); border-radius:12px; padding:16px; margin-bottom:16px; text-align:center;">
+          <p style="color:#94a3b8; font-size:14px;">Mira a la cámara para verificar que eres tú.</p>
+        </div>
+        
+        <div style="position:relative; background:#000; border-radius:16px; overflow:hidden; margin-bottom:16px; aspect-ratio:4/3;">
+          <video id="video-verificar-facial" autoplay muted playsinline style="width:100%; height:100%; object-fit:cover;"></video>
+          <canvas id="canvas-verificar-facial" style="position:absolute; inset:0; width:100%; height:100%;"></canvas>
+          <div id="overlay-verificar-facial" style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.7);">
+            <div style="text-align:center; color:white;">
+              <span style="font-size:40px; display:block;">📷</span>
+              <p style="margin-top:8px;">Iniciando cámara...</p>
+            </div>
+          </div>
+        </div>
+        
+        <div id="estado-verificacion" style="background:rgba(51,65,85,0.5); border-radius:12px; padding:16px; margin-bottom:16px; text-align:center;">
+          <p style="color:#94a3b8; font-size:14px;">Esperando detección...</p>
+        </div>
+        
+        <button onclick="cerrarVerificacionFacial()" style="width:100%; padding:14px; background:rgba(239,68,68,0.2); border:1px solid rgba(239,68,68,0.3); border-radius:12px; color:#f87171; font-weight:500; cursor:pointer;">
+          ❌ Cancelar
+        </button>
+      </div>
+    </div>
+  `;
+  
+  document.body.appendChild(modal);
+  document.body.style.overflow = 'hidden';
+  
+  window.__descriptorVerificar = descriptorGuardado;
+  window.__usuarioVerificar = usuario;
+  
+  // Iniciar cámara
+  try {
+    const video = document.getElementById('video-verificar-facial');
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } }
+    });
+    
+    video.srcObject = stream;
+    window.__streamVerificar = stream;
+    
+    video.onloadedmetadata = () => {
+      document.getElementById('overlay-verificar-facial').style.display = 'none';
+      loopVerificacion();
+    };
+  } catch (error) {
+    console.error('Error cámara:', error);
+    document.getElementById('overlay-verificar-facial').innerHTML = `
+      <div style="text-align:center; color:#f87171;">
+        <span style="font-size:40px;">❌</span>
+        <p>Error accediendo a la cámara</p>
+      </div>
+    `;
+  }
+};
+
+/**
+ * Loop de verificación
+ */
+async function loopVerificacion() {
+  const video = document.getElementById('video-verificar-facial');
+  const canvas = document.getElementById('canvas-verificar-facial');
+  const estadoDiv = document.getElementById('estado-verificacion');
+  
+  if (!video || !canvas || !window.__streamVerificar) return;
+  
+  const ctx = canvas.getContext('2d');
+  canvas.width = video.videoWidth || 640;
+  canvas.height = video.videoHeight || 480;
+  
+  const opciones = new faceapi.TinyFaceDetectorOptions({ inputSize: 320, scoreThreshold: 0.5 });
+  
+  const detectar = async () => {
+    if (!window.__streamVerificar) return;
+    
+    try {
+      const deteccion = await faceapi.detectSingleFace(video, opciones)
+        .withFaceLandmarks()
+        .withFaceDescriptor();
+      
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      if (deteccion) {
+        const box = deteccion.detection.box;
+        const distancia = faceapi.euclideanDistance(deteccion.descriptor, window.__descriptorVerificar);
+        const coincide = distancia < FACIAL_CONFIG.umbralReconocimiento;
+        
+        ctx.strokeStyle = coincide ? '#10b981' : '#f87171';
+        ctx.lineWidth = 3;
+        ctx.strokeRect(box.x, box.y, box.width, box.height);
+        
+        if (coincide) {
+          // ¡Verificación exitosa!
+          if (typeof reproducirBeep === 'function') reproducirBeep('success');
+          
+          estadoDiv.innerHTML = `
+            <p style="color:#10b981; font-size:16px; font-weight:600;">✅ ¡Verificación exitosa!</p>
+            <p style="color:#94a3b8; font-size:12px;">Guardando...</p>
+          `;
+          
+          // Guardar verificación
+          const usuarioId = window.__usuarioVerificar.control || window.__usuarioVerificar.id;
+          await db.collection('alumnos').doc(usuarioId).update({
+            'reconocimientoFacial.verificado': true,
+            'reconocimientoFacial.fechaVerificacion': firebase.firestore.FieldValue.serverTimestamp()
+          });
+          
+          await db.collection('logs_facial').add({
+            tipo: 'verificacion',
+            alumnoId: usuarioId,
+            alumnoNombre: `${window.__usuarioVerificar.nombre} ${window.__usuarioVerificar.apellidos || ''}`,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+          });
+          
+          mostrarNotificacion('✅ ¡Registro facial verificado!', 'success');
+          
+          setTimeout(() => {
+            cerrarVerificacionFacial();
+            actualizarEstadoFacialAlumno();
+          }, 1500);
+          
+          return; // Detener loop
+        } else {
+          estadoDiv.innerHTML = `
+            <p style="color:#fbbf24; font-size:14px;">⚠️ Cara detectada pero no coincide</p>
+            <p style="color:#94a3b8; font-size:12px;">Asegúrate de ser la misma persona registrada</p>
+          `;
+        }
+      } else {
+        estadoDiv.innerHTML = `<p style="color:#94a3b8; font-size:14px;">🔍 Buscando cara...</p>`;
+      }
+    } catch (e) {
+      console.error('Error detección:', e);
+    }
+    
+    if (window.__streamVerificar) {
+      requestAnimationFrame(detectar);
+    }
+  };
+  
+  detectar();
+}
+
+/**
+ * Cierra modal de verificación
+ */
+window.cerrarVerificacionFacial = function() {
+  if (window.__streamVerificar) {
+    window.__streamVerificar.getTracks().forEach(track => track.stop());
+    window.__streamVerificar = null;
+  }
+  
+  window.__descriptorVerificar = null;
+  window.__usuarioVerificar = null;
+  
+  document.body.style.overflow = '';
+  document.getElementById('modal-verificar-facial')?.remove();
+};
+
+// Auto-actualizar cuando se abre config-alumno
+document.addEventListener('DOMContentLoaded', () => {
+  const configSection = document.getElementById('config-alumno');
+  if (configSection) {
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.attributeName === 'class' && !configSection.classList.contains('hidden')) {
+          if (window.usuarioActual?.tipo === 'Alumno') {
+            actualizarEstadoFacialAlumno();
+          }
+        }
+      });
+    });
+    observer.observe(configSection, { attributes: true });
+  }
+});

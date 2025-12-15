@@ -1884,3 +1884,148 @@ window.buscarYRegistrarAlumno = buscarYRegistrarAlumno;
 window.finalizarClaseActiva = finalizarClaseActiva;
 window.togglePaseLista = togglePaseLista;
 window.exportarAsistenciaClase = exportarAsistenciaClase;
+
+// ========================
+// 👤 CARGAR PERFIL COMPLETO DEL PROFESOR
+// ========================
+async function cargarPerfilCompletoProfesor() {
+  const profesor = window.usuarioActual;
+  if (!profesor || profesor.tipo !== 'Profesor') return;
+  
+  const usuarioId = profesor.telefono || profesor.id;
+  
+  try {
+    // Cargar datos actualizados de Firebase
+    const doc = await db.collection('profesores').doc(usuarioId).get();
+    const datos = doc.exists ? doc.data() : profesor;
+    
+    // Avatar
+    const avatarEl = document.getElementById('avatar-profesor-qr');
+    if (avatarEl) {
+      const iniciales = `${(datos.nombre || '').charAt(0)}${(datos.apellidos || '').charAt(0)}`.toUpperCase() || '--';
+      avatarEl.textContent = iniciales;
+    }
+    
+    // Nombre completo
+    const nombreEl = document.getElementById('nombre-profesor-qr');
+    if (nombreEl) {
+      nombreEl.textContent = `${datos.nombre || ''} ${datos.apellidos || ''}`.trim() || 'Sin nombre';
+    }
+    
+    // Teléfono
+    const telefonoEl = document.getElementById('telefono-profesor-qr');
+    if (telefonoEl) telefonoEl.textContent = datos.telefono || usuarioId || '-';
+    
+    // Materias
+    const materiasEl = document.getElementById('materias-profesor-qr');
+    if (materiasEl) {
+      let materias = '-';
+      if (datos.materias) {
+        if (Array.isArray(datos.materias)) {
+          materias = datos.materias.join(', ');
+        } else {
+          materias = datos.materias;
+        }
+      }
+      materiasEl.textContent = materias;
+      materiasEl.title = materias; // Para tooltip
+    }
+    
+    // Grupos
+    const gruposEl = document.getElementById('grupos-profesor-qr');
+    if (gruposEl) {
+      let grupos = '-';
+      if (datos.grupos) {
+        if (Array.isArray(datos.grupos)) {
+          grupos = datos.grupos.length;
+        } else {
+          grupos = String(datos.grupos).split(',').length;
+        }
+      }
+      gruposEl.textContent = grupos;
+    }
+    
+    // Cargar estadísticas del profesor
+    await cargarEstadisticasPerfilProfesor(usuarioId, `${datos.nombre || ''} ${datos.apellidos || ''}`.trim());
+    
+  } catch (error) {
+    console.error('Error cargando perfil profesor:', error);
+  }
+}
+
+/**
+ * Carga las estadísticas del perfil del profesor
+ */
+async function cargarEstadisticasPerfilProfesor(profesorId, nombreProfesor) {
+  try {
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+    const hoyStr = hoy.toISOString().split('T')[0];
+    
+    // Sesiones de hoy
+    const sesionesHoySnap = await db.collection('sesiones')
+      .where('fecha', '>=', hoyStr)
+      .get();
+    
+    let clasesHoy = 0;
+    let alumnosHoy = 0;
+    
+    sesionesHoySnap.forEach(doc => {
+      const sesion = doc.data();
+      if (sesion.profesorId === profesorId || 
+          sesion.profesor === nombreProfesor ||
+          sesion.profesor?.nombre === nombreProfesor) {
+        clasesHoy++;
+        alumnosHoy += Object.keys(sesion.alumnos || {}).length;
+      }
+    });
+    
+    // Sesiones del mes
+    const inicioMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+    const inicioMesStr = inicioMes.toISOString().split('T')[0];
+    
+    const sesionesMesSnap = await db.collection('sesiones')
+      .where('fecha', '>=', inicioMesStr)
+      .get();
+    
+    let sesionesMes = 0;
+    sesionesMesSnap.forEach(doc => {
+      const sesion = doc.data();
+      if (sesion.profesorId === profesorId || 
+          sesion.profesor === nombreProfesor ||
+          sesion.profesor?.nombre === nombreProfesor) {
+        sesionesMes++;
+      }
+    });
+    
+    // Actualizar UI
+    const clasesHoyEl = document.getElementById('perfil-clases-hoy-profesor');
+    if (clasesHoyEl) clasesHoyEl.textContent = clasesHoy;
+    
+    const alumnosEl = document.getElementById('perfil-alumnos-profesor');
+    if (alumnosEl) alumnosEl.textContent = alumnosHoy;
+    
+    const sesionesEl = document.getElementById('perfil-sesiones-profesor');
+    if (sesionesEl) sesionesEl.textContent = sesionesMes;
+    
+  } catch (error) {
+    console.error('Error cargando estadísticas profesor:', error);
+  }
+}
+
+// Observer para cargar perfil cuando se abre la sección
+document.addEventListener('DOMContentLoaded', () => {
+  const qrProfesor = document.getElementById('generador-qr-profesor');
+  if (qrProfesor) {
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.attributeName === 'class' && !qrProfesor.classList.contains('hidden')) {
+          cargarPerfilCompletoProfesor();
+        }
+      });
+    });
+    observer.observe(qrProfesor, { attributes: true });
+  }
+});
+
+window.cargarPerfilCompletoProfesor = cargarPerfilCompletoProfesor;
