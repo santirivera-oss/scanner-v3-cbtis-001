@@ -482,95 +482,102 @@ async function iniciarReconocimientoFacial(modo = 'asistencia') {
     if (window.claseActiva && window.claseActiva.estado === 'En curso') {
       const numAlumnos = Object.keys(window.claseActiva.alumnos || {}).length;
       infoClase = `
-        <div class="bg-success/20 border border-success/30 rounded-xl p-3 mb-4">
-          <p class="text-success font-medium">✅ Clase activa</p>
-          <p class="text-xs text-text-muted">Profesor: ${window.claseActiva.profesor?.nombre || '-'}</p>
-          <p class="text-xs text-text-muted">Alumnos registrados: ${numAlumnos}</p>
+        <div style="background:rgba(16,185,129,0.2); border:1px solid rgba(16,185,129,0.3); border-radius:12px; padding:12px; margin-bottom:16px;">
+          <p style="color:#10b981; font-weight:500;">✅ Clase activa</p>
+          <p style="font-size:12px; color:#94a3b8;">Profesor: ${window.claseActiva.profesor?.nombre || '-'}</p>
+          <p style="font-size:12px; color:#94a3b8;">Alumnos registrados: ${numAlumnos}</p>
         </div>
       `;
     } else {
       infoClase = `
-        <div class="bg-yellow-500/20 border border-yellow-500/30 rounded-xl p-3 mb-4">
-          <p class="text-yellow-400 font-medium">⚠️ No hay clase activa</p>
-          <p class="text-xs text-text-muted">Un profesor debe iniciar la clase primero</p>
+        <div style="background:rgba(234,179,8,0.2); border:1px solid rgba(234,179,8,0.3); border-radius:12px; padding:12px; margin-bottom:16px;">
+          <p style="color:#fbbf24; font-weight:500;">⚠️ No hay clase activa</p>
+          <p style="font-size:12px; color:#94a3b8;">Un profesor debe iniciar la clase primero</p>
         </div>
       `;
     }
   }
   
-  // Crear overlay de reconocimiento
+  // Crear overlay de reconocimiento - CON SCROLL
   const overlay = document.createElement('div');
   overlay.id = 'overlay-reconocimiento-facial';
-  overlay.className = 'fixed inset-0 bg-black/90 flex items-center justify-center z-[999] p-4';
+  overlay.style.cssText = 'position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:9999; overflow-y:auto; -webkit-overflow-scrolling:touch;';
   overlay.innerHTML = `
-    <div class="max-w-2xl w-full">
-      <div class="flex items-center justify-between mb-4">
-        <h3 class="text-xl font-bold text-white flex items-center gap-2">
-          🎭 Reconocimiento Facial
-          <span class="text-sm font-normal text-text-muted">(${modo === 'cbtis' ? 'Entrada/Salida' : 'Asistencia en Clase'})</span>
-        </h3>
-        <button onclick="detenerReconocimientoFacial()" class="p-2 hover:bg-white/10 rounded-lg transition-all">
-          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div style="min-height:100%; padding:16px; display:flex; flex-direction:column;">
+      <!-- Header fijo -->
+      <div style="background:rgba(30,41,59,0.95); border-radius:12px; padding:16px; margin-bottom:16px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:10;">
+        <div>
+          <h3 style="font-size:18px; font-weight:bold; color:#f1f5f9; display:flex; align-items:center; gap:8px;">
+            🎭 Reconocimiento Facial
+          </h3>
+          <span style="font-size:12px; color:#94a3b8;">${modo === 'cbtis' ? 'Entrada/Salida CBTis' : 'Asistencia en Clase'}</span>
+        </div>
+        <button onclick="detenerReconocimientoFacial()" style="padding:12px; background:#ef4444; border-radius:8px; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center;">
+          <svg width="24" height="24" fill="none" stroke="white" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
           </svg>
         </button>
       </div>
       
-      <!-- Info de clase (solo en modo asistencia) -->
-      ${infoClase}
-      
-      <!-- Contador de usuarios -->
-      <div class="bg-surface-light/50 rounded-xl p-2 mb-4 flex items-center justify-between">
-        <span class="text-text-muted text-sm">👥 Usuarios con facial registrado:</span>
-        <span class="text-accent font-bold">${totalUsuarios}</span>
-      </div>
-      
-      <!-- Video -->
-      <div class="relative bg-black rounded-2xl overflow-hidden aspect-video mb-4">
-        <video id="video-reconocimiento" autoplay muted playsinline class="w-full h-full object-cover"></video>
-        <canvas id="canvas-reconocimiento" class="absolute inset-0 w-full h-full"></canvas>
+      <!-- Contenido -->
+      <div style="max-width:600px; margin:0 auto; width:100%;">
+        <!-- Info de clase -->
+        ${infoClase}
         
-        <!-- Estado -->
-        <div id="estado-reconocimiento" class="absolute bottom-4 left-4 right-4 bg-black/70 rounded-xl p-3 text-center">
-          <p class="text-white">📷 Iniciando cámara...</p>
+        <!-- Contador de usuarios -->
+        <div style="background:rgba(51,65,85,0.5); border-radius:12px; padding:10px 16px; margin-bottom:16px; display:flex; align-items:center; justify-content:space-between;">
+          <span style="font-size:14px; color:#94a3b8;">👥 Usuarios con facial registrado:</span>
+          <span style="color:#22d3ee; font-weight:bold;">${totalUsuarios}</span>
         </div>
-      </div>
-      
-      <!-- Último reconocido -->
-      <div id="ultimo-reconocido" class="glass rounded-xl p-4 hidden mb-4">
-        <div class="flex items-center gap-4">
-          <div class="w-16 h-16 rounded-full bg-gradient-to-br from-success to-accent flex items-center justify-center text-white text-2xl font-bold">
-            <span id="avatar-reconocido">?</span>
-          </div>
-          <div class="flex-1">
-            <p class="text-lg font-semibold text-white" id="nombre-reconocido">-</p>
-            <p class="text-text-muted" id="info-reconocido">-</p>
-          </div>
-          <div class="text-right">
-            <span class="text-success text-2xl">✅</span>
-            <p class="text-xs text-text-muted" id="hora-reconocido">-</p>
+        
+        <!-- Video -->
+        <div style="position:relative; background:#000; border-radius:16px; overflow:hidden; margin-bottom:16px; aspect-ratio:4/3;">
+          <video id="video-reconocimiento" autoplay muted playsinline style="width:100%; height:100%; object-fit:cover;"></video>
+          <canvas id="canvas-reconocimiento" style="position:absolute; inset:0; width:100%; height:100%;"></canvas>
+          
+          <!-- Estado -->
+          <div id="estado-reconocimiento" style="position:absolute; bottom:16px; left:16px; right:16px; background:rgba(0,0,0,0.7); border-radius:12px; padding:12px; text-align:center;">
+            <p style="color:white;">📷 Iniciando cámara...</p>
           </div>
         </div>
+        
+        <!-- Último reconocido -->
+        <div id="ultimo-reconocido" style="display:none; background:rgba(30,41,59,0.8); backdrop-filter:blur(10px); border:1px solid rgba(99,102,241,0.2); border-radius:12px; padding:16px; margin-bottom:16px;">
+          <div style="display:flex; align-items:center; gap:16px;">
+            <div id="avatar-reconocido" style="width:60px; height:60px; border-radius:50%; background:linear-gradient(135deg, #10b981, #06b6d4); display:flex; align-items:center; justify-content:center; color:white; font-size:24px; font-weight:bold;">?</div>
+            <div style="flex:1;">
+              <p id="nombre-reconocido" style="font-size:18px; font-weight:600; color:white;">-</p>
+              <p id="info-reconocido" style="color:#94a3b8;">-</p>
+            </div>
+            <div style="text-align:right;">
+              <span style="color:#10b981; font-size:28px;">✅</span>
+              <p id="hora-reconocido" style="font-size:12px; color:#94a3b8;">-</p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Historial de reconocidos -->
+        <div id="historial-reconocidos" style="display:none; background:rgba(30,41,59,0.8); backdrop-filter:blur(10px); border:1px solid rgba(99,102,241,0.2); border-radius:12px; padding:16px; margin-bottom:16px; max-height:150px; overflow-y:auto;">
+          <p style="font-size:14px; color:#94a3b8; margin-bottom:8px;">📋 Registrados en esta sesión:</p>
+          <div id="lista-reconocidos" style="display:flex; flex-direction:column; gap:4px; font-size:14px;"></div>
+        </div>
+        
+        <!-- Botón alternar a QR -->
+        <button onclick="detenerReconocimientoFacial(); if(typeof activarModoCamara === 'function') activarModoCamara();" 
+                style="width:100%; padding:14px; background:rgba(51,65,85,0.8); border:1px solid rgba(100,116,139,0.3); border-radius:12px; color:#94a3b8; font-weight:500; font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:16px;">
+          📱 Cambiar a escáner QR
+        </button>
+        
+        <!-- Botón cancelar -->
+        <button onclick="detenerReconocimientoFacial()" style="width:100%; padding:14px; background:rgba(239,68,68,0.2); border:1px solid rgba(239,68,68,0.3); border-radius:12px; color:#f87171; font-weight:500; font-size:16px; cursor:pointer; margin-bottom:20px;">
+          ❌ Cerrar
+        </button>
       </div>
-      
-      <!-- Historial de reconocidos en esta sesión -->
-      <div id="historial-reconocidos" class="glass rounded-xl p-4 mb-4 max-h-32 overflow-y-auto hidden">
-        <p class="text-sm text-text-muted mb-2">📋 Registrados en esta sesión:</p>
-        <div id="lista-reconocidos" class="space-y-1 text-sm"></div>
-      </div>
-      
-      <!-- Botón alternar a QR -->
-      <button onclick="detenerReconocimientoFacial(); if(typeof activarModoCamara === 'function') activarModoCamara();" 
-              class="w-full py-3 bg-surface-light hover:bg-surface border border-border-subtle rounded-xl text-text-muted font-medium transition-all flex items-center justify-center gap-2">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/>
-        </svg>
-        Cambiar a escáner QR
-      </button>
     </div>
   `;
   
   document.body.appendChild(overlay);
+  document.body.style.overflow = 'hidden';
   
   // Guardar modo y limpiar historial
   window.__modoReconocimiento = modo;
@@ -803,8 +810,9 @@ async function procesarUsuarioReconocido(usuario) {
       // Mostrar en UI del último reconocido con indicador diferente
       const ultimoDiv = document.getElementById('ultimo-reconocido');
       if (ultimoDiv) {
-        ultimoDiv.classList.remove('hidden');
-        ultimoDiv.className = 'glass rounded-xl p-4 mb-4 border-2 border-yellow-500/50';
+        ultimoDiv.style.display = 'block';
+        ultimoDiv.style.borderColor = 'rgba(234, 179, 8, 0.5)';
+        ultimoDiv.style.borderWidth = '2px';
         document.getElementById('avatar-reconocido').textContent = usuario.nombre.charAt(0);
         document.getElementById('nombre-reconocido').textContent = `${usuario.nombre} ${usuario.apellidos || ''}`;
         document.getElementById('info-reconocido').textContent = '⚠️ YA REGISTRADO';
@@ -823,8 +831,9 @@ async function procesarUsuarioReconocido(usuario) {
   // Actualizar UI del overlay
   const ultimoDiv = document.getElementById('ultimo-reconocido');
   if (ultimoDiv) {
-    ultimoDiv.classList.remove('hidden');
-    ultimoDiv.className = 'glass rounded-xl p-4 mb-4'; // Reset clase
+    ultimoDiv.style.display = 'block';
+    ultimoDiv.style.borderColor = 'rgba(99, 102, 241, 0.2)';
+    ultimoDiv.style.borderWidth = '1px';
     document.getElementById('avatar-reconocido').textContent = usuario.nombre.charAt(0);
     document.getElementById('nombre-reconocido').textContent = `${usuario.nombre} ${usuario.apellidos || ''}`;
     document.getElementById('info-reconocido').textContent = 
@@ -950,12 +959,12 @@ function agregarAlHistorialReconocidos(usuario) {
   const listaDiv = document.getElementById('lista-reconocidos');
   
   if (historialDiv && listaDiv && window.__historialReconocidos.length > 0) {
-    historialDiv.classList.remove('hidden');
+    historialDiv.style.display = 'block';
     
     listaDiv.innerHTML = window.__historialReconocidos.map(u => `
-      <div class="flex items-center justify-between py-1 border-b border-border-subtle/30 last:border-0">
-        <span class="text-text-main">${u.tipo === 'Profesor' ? '👨‍🏫' : '🎓'} ${u.nombre} ${u.apellidos || ''}</span>
-        <span class="text-text-muted text-xs">${u.hora}</span>
+      <div style="display:flex; align-items:center; justify-content:space-between; padding:6px 0; border-bottom:1px solid rgba(100,116,139,0.2);">
+        <span style="color:#f1f5f9;">${u.tipo === 'Profesor' ? '👨‍🏫' : '🎓'} ${u.nombre} ${u.apellidos || ''}</span>
+        <span style="font-size:12px; color:#94a3b8;">${u.hora}</span>
       </div>
     `).join('');
   }
@@ -970,6 +979,9 @@ function detenerReconocimientoFacial() {
     streamActivo.getTracks().forEach(track => track.stop());
     streamActivo = null;
   }
+  
+  // Restaurar scroll del body
+  document.body.style.overflow = '';
   
   // Remover overlay
   const overlay = document.getElementById('overlay-reconocimiento-facial');
