@@ -351,7 +351,12 @@ async function procesarLoginPorEscaneo(datosRaw) {
         
         if (usuario) {
           reproducirBeep('success');
-          await loginExitoso(usuario);
+          // Verificar contraseña antes de login
+          if (typeof verificarPasswordDespuesEscaneo === 'function') {
+            await verificarPasswordDespuesEscaneo(usuario);
+          } else {
+            await loginExitoso(usuario);
+          }
           return;
         }
       } else if (resultado.error === 'EXPIRED') {
@@ -434,9 +439,13 @@ async function procesarLoginPorEscaneo(datosRaw) {
       throw new Error("Código no reconocido");
     }
     
-    // ✅ Login exitoso
+    // ✅ Usuario encontrado - Verificar contraseña
     reproducirBeep('success');
-    await loginExitoso(usuario);
+    if (typeof verificarPasswordDespuesEscaneo === 'function') {
+      await verificarPasswordDespuesEscaneo(usuario);
+    } else {
+      await loginExitoso(usuario);
+    }
     
   } catch (error) {
     console.error("❌ Error en login:", error);
@@ -636,6 +645,23 @@ function ocultarTodosLosPaneles() {
 // 🔹 LLENAR PERFILES
 // ========================
 function llenarPerfilAlumno(usuario) {
+  // ===== HEADER DEL PANEL (parte superior derecha) =====
+  const avatarHeader = document.getElementById('alumno-avatar');
+  if (avatarHeader) {
+    avatarHeader.textContent = obtenerIniciales(usuario.nombre, usuario.apellidos);
+  }
+  
+  const nombreHeader = document.getElementById('alumno-perfil-nombre');
+  if (nombreHeader) {
+    nombreHeader.textContent = `${usuario.nombre || ''} ${usuario.apellidos || ''}`.trim() || 'Sin nombre';
+  }
+  
+  const gradoHeader = document.getElementById('alumno-perfil-grado');
+  if (gradoHeader) {
+    gradoHeader.textContent = `${usuario.grado || '-'}° ${usuario.grupo || '-'} • ${usuario.turno || 'Turno no especificado'}`;
+  }
+  
+  // ===== PERFIL EN CONFIGURACIÓN =====
   // Avatar
   const avatar = document.getElementById('perfil-alumno-avatar');
   if (avatar) {
@@ -676,6 +702,27 @@ function llenarPerfilAlumno(usuario) {
 }
 
 function llenarPerfilProfesor(usuario) {
+  // ===== HEADER DEL PANEL (parte superior derecha) =====
+  const avatarHeader = document.getElementById('profesor-avatar');
+  if (avatarHeader) {
+    avatarHeader.textContent = obtenerIniciales(usuario.nombre, usuario.apellidos);
+  }
+  
+  const nombreHeader = document.getElementById('profesor-perfil-nombre');
+  if (nombreHeader) {
+    nombreHeader.textContent = `${usuario.nombre || ''} ${usuario.apellidos || ''}`.trim() || 'Sin nombre';
+  }
+  
+  const materiasHeader = document.getElementById('profesor-perfil-materias');
+  if (materiasHeader) {
+    let materias = usuario.materias || '';
+    if (Array.isArray(materias)) {
+      materias = materias.join(', ');
+    }
+    materiasHeader.textContent = materias || 'Sin materias asignadas';
+  }
+  
+  // ===== PERFIL EN CONFIGURACIÓN =====
   // Avatar
   const avatar = document.getElementById('perfil-profesor-avatar');
   if (avatar) {

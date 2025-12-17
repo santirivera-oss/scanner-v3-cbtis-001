@@ -1598,6 +1598,20 @@ tailwind.config = {
             <span class="sidebar-text">Gestión Facial</span>
           </a>
         </li>
+        <li class="nav-admin" style="display:none;">
+          <a href="#" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-text-muted hover:text-text-main hover:bg-surface-light/50 transition-all" data-section="gestion-contrasenas">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg>
+            <span class="sidebar-text">Contraseñas</span>
+            <span class="ml-auto bg-yellow-500/20 text-yellow-400 text-xs px-2 py-0.5 rounded-full">🔑</span>
+          </a>
+        </li>
+        <li class="nav-admin" style="display:none;">
+          <a href="#" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-text-muted hover:text-text-main hover:bg-surface-light/50 transition-all" data-section="registros-cbtis-admin">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+            <span class="sidebar-text">Registros CBTis</span>
+            <span class="ml-auto bg-green-500/20 text-green-400 text-xs px-2 py-0.5 rounded-full">🏫</span>
+          </a>
+        </li>
 
         <!-- Navegación Prefecto (rol específico) -->
         <li class="nav-prefecto-only" style="display:none;">
@@ -1656,13 +1670,16 @@ tailwind.config = {
           <h1 class="text-2xl lg:text-3xl font-bold text-text-main">Panel del Alumno</h1>
           <p class="text-text-muted mt-1">Tu asistencia y estadísticas personales</p>
         </div>
-        <div class="flex items-center gap-4 p-4 glass rounded-2xl">
-          <div class="w-14 h-14 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white font-bold text-xl">
+        <div onclick="document.querySelector('[data-section=config-alumno]').click()" class="flex items-center gap-4 p-4 glass rounded-2xl cursor-pointer hover:bg-surface-light/50 transition-all group">
+          <div class="w-14 h-14 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-white font-bold text-xl shadow-lg">
             <span id="alumno-avatar">A</span>
           </div>
-          <div>
-            <p class="font-semibold text-text-main" id="alumno-perfil-nombre">Nombre Alumno</p>
+          <div class="flex-1">
+            <p class="font-semibold text-text-main group-hover:text-cyan-400 transition-colors" id="alumno-perfil-nombre">Nombre Alumno</p>
             <p class="text-text-muted text-sm" id="alumno-perfil-grado">Grado y Grupo</p>
+          </div>
+          <div class="text-text-muted group-hover:text-cyan-400 transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
           </div>
         </div>
       </div>
@@ -2489,13 +2506,16 @@ tailwind.config = {
           <h1 class="text-2xl lg:text-3xl font-bold text-text-main">Panel del Profesor</h1>
           <p class="text-text-muted mt-1">Gestiona asistencias y genera tu código</p>
         </div>
-        <div class="flex items-center gap-4 p-4 glass rounded-2xl">
-          <div class="w-14 h-14 rounded-full bg-gradient-to-br from-accent to-primary flex items-center justify-center text-white font-bold text-xl">
+        <div onclick="document.querySelector('[data-section=generador-qr-profesor]').click()" class="flex items-center gap-4 p-4 glass rounded-2xl cursor-pointer hover:bg-surface-light/50 transition-all group">
+          <div class="w-14 h-14 rounded-full bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center text-white font-bold text-xl shadow-lg">
             <span id="profesor-avatar">P</span>
           </div>
-          <div>
-            <p class="font-semibold text-text-main" id="profesor-perfil-nombre">Nombre Profesor</p>
+          <div class="flex-1">
+            <p class="font-semibold text-text-main group-hover:text-purple-400 transition-colors" id="profesor-perfil-nombre">Nombre Profesor</p>
             <p class="text-text-muted text-sm" id="profesor-perfil-materias">Materias</p>
+          </div>
+          <div class="text-text-muted group-hover:text-purple-400 transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
           </div>
         </div>
       </div>
@@ -3543,8 +3563,13 @@ tailwind.config = {
               <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
               Gestión de Usuarios
             </h3>
-            <input type="text" id="buscar-usuario" placeholder="🔍 Buscar usuario..."
-                   class="w-full lg:w-72 p-3 rounded-xl bg-surface-light border border-border-subtle text-text-main placeholder-text-muted focus:outline-none focus:border-primary input-glow transition-all">
+            <div class="flex items-center gap-3">
+              <input type="text" id="buscar-usuario" placeholder="🔍 Buscar usuario..."
+                     class="w-full lg:w-72 p-3 rounded-xl bg-surface-light border border-border-subtle text-text-main placeholder-text-muted focus:outline-none focus:border-primary input-glow transition-all">
+              <button onclick="abrirGestionContrasenas()" class="py-3 px-5 bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-400 rounded-xl font-medium transition-all flex items-center gap-2 whitespace-nowrap">
+                🔑 Contraseñas
+              </button>
+            </div>
           </div>
 
           <div class="overflow-x-auto">
@@ -4365,6 +4390,246 @@ tailwind.config = {
       </div>
     </section>
 
+    <!-- =====================================================
+       SECCIÓN: GESTIÓN DE CONTRASEÑAS (Admin)
+    ===================================================== -->
+    <section id="gestion-contrasenas" class="content-section p-6 lg:p-8 hidden">
+      <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+          <div>
+            <h2 class="text-2xl font-bold text-text-main flex items-center gap-3">
+              🔑 Gestión de Contraseñas
+            </h2>
+            <p class="text-text-muted mt-1">Administra las contraseñas de alumnos y profesores</p>
+          </div>
+        </div>
+
+        <!-- Tarjetas de estadísticas -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+          <div class="glass rounded-2xl p-5 border-l-4 border-success">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-text-muted text-sm">Con Contraseña</p>
+                <p class="text-3xl font-bold text-success mt-1" id="gestion-stat-con-password">0</p>
+              </div>
+              <div class="w-12 h-12 rounded-xl bg-success/20 flex items-center justify-center">
+                <span class="text-2xl">🔐</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="glass rounded-2xl p-5 border-l-4 border-warning">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-text-muted text-sm">Sin Contraseña</p>
+                <p class="text-3xl font-bold text-warning mt-1" id="gestion-stat-sin-password">0</p>
+              </div>
+              <div class="w-12 h-12 rounded-xl bg-warning/20 flex items-center justify-center">
+                <span class="text-2xl">⚠️</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="glass rounded-2xl p-5 border-l-4 border-primary">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-text-muted text-sm">Total Usuarios</p>
+                <p class="text-3xl font-bold text-primary mt-1" id="gestion-stat-total">0</p>
+              </div>
+              <div class="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center">
+                <span class="text-2xl">👥</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Información del sistema -->
+        <div class="glass rounded-2xl p-6 mb-8">
+          <h3 class="text-lg font-semibold text-text-main mb-4 flex items-center gap-2">
+            ℹ️ Información del Sistema de Contraseñas
+          </h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="bg-surface-light/30 rounded-xl p-4">
+              <h4 class="font-medium text-cyan-400 mb-2">🔐 Flujo de Login</h4>
+              <ul class="text-text-muted text-sm space-y-1">
+                <li>1. Usuario escanea QR o código de barras</li>
+                <li>2. Si tiene contraseña → Se le solicita ingresarla</li>
+                <li>3. Si NO tiene → Debe crear una obligatoriamente</li>
+                <li>4. Contraseña: 4 dígitos numéricos</li>
+              </ul>
+            </div>
+            <div class="bg-surface-light/30 rounded-xl p-4">
+              <h4 class="font-medium text-yellow-400 mb-2">⚠️ Restablecer Contraseña</h4>
+              <ul class="text-text-muted text-sm space-y-1">
+                <li>• Solo el administrador puede restablecer</li>
+                <li>• El usuario deberá crear una nueva al entrar</li>
+                <li>• Se registra quién y cuándo la restableció</li>
+                <li>• Usar solo en casos de emergencia</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Panel de acciones -->
+        <div class="glass rounded-2xl p-6">
+          <h3 class="text-lg font-semibold text-text-main mb-6">
+            🛠️ Acciones
+          </h3>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <button onclick="abrirGestionContrasenas()" class="p-6 bg-gradient-to-br from-yellow-500/20 to-orange-500/20 hover:from-yellow-500/30 hover:to-orange-500/30 border border-yellow-500/30 rounded-2xl text-left transition-all group">
+              <div class="flex items-center gap-4 mb-3">
+                <div class="w-12 h-12 rounded-xl bg-yellow-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <span class="text-2xl">🔄</span>
+                </div>
+                <div>
+                  <h4 class="font-semibold text-yellow-400">Restablecer Contraseña</h4>
+                  <p class="text-text-muted text-sm">Buscar usuario y eliminar su contraseña</p>
+                </div>
+              </div>
+            </button>
+            
+            <button onclick="cargarEstadisticasPasswordsSeccion()" class="p-6 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 hover:from-cyan-500/30 hover:to-blue-500/30 border border-cyan-500/30 rounded-2xl text-left transition-all group">
+              <div class="flex items-center gap-4 mb-3">
+                <div class="w-12 h-12 rounded-xl bg-cyan-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <span class="text-2xl">📊</span>
+                </div>
+                <div>
+                  <h4 class="font-semibold text-cyan-400">Actualizar Estadísticas</h4>
+                  <p class="text-text-muted text-sm">Recargar conteo de contraseñas</p>
+                </div>
+              </div>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================
+       SECCIÓN: REGISTROS CBTIS (Admin)
+    ===================================================== -->
+    <section id="registros-cbtis-admin" class="content-section p-6 lg:p-8 hidden">
+      <div class="max-w-7xl mx-auto">
+        <!-- Header -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+          <div>
+            <h2 class="text-2xl font-bold text-text-main flex items-center gap-3">
+              🏫 Registros CBTis
+            </h2>
+            <p class="text-text-muted mt-1">Control de ingresos y salidas del plantel</p>
+          </div>
+          <button onclick="analizarAsistenciaCBTis()" class="py-3 px-5 bg-primary hover:bg-primary/80 text-white rounded-xl font-medium transition-all flex items-center gap-2">
+            📊 Analizar Asistencia Hoy
+          </button>
+        </div>
+
+        <!-- Estadísticas -->
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+          <div class="glass rounded-2xl p-5 border-l-4 border-primary">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-text-muted text-sm">Total Registros</p>
+                <p class="text-3xl font-bold text-primary mt-1" id="stat-cbtis-total">0</p>
+              </div>
+              <div class="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center">
+                <span class="text-2xl">📋</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="glass rounded-2xl p-5 border-l-4 border-success">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-text-muted text-sm">Ingresos</p>
+                <p class="text-3xl font-bold text-success mt-1" id="stat-cbtis-ingresos">0</p>
+              </div>
+              <div class="w-12 h-12 rounded-xl bg-success/20 flex items-center justify-center">
+                <span class="text-2xl">🔓</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="glass rounded-2xl p-5 border-l-4 border-danger">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-text-muted text-sm">Salidas</p>
+                <p class="text-3xl font-bold text-danger mt-1" id="stat-cbtis-salidas">0</p>
+              </div>
+              <div class="w-12 h-12 rounded-xl bg-danger/20 flex items-center justify-center">
+                <span class="text-2xl">🚪</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="glass rounded-2xl p-5 border-l-4 border-cyan-500">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-text-muted text-sm">Alumnos Únicos</p>
+                <p class="text-3xl font-bold text-cyan-400 mt-1" id="stat-cbtis-alumnos">0</p>
+              </div>
+              <div class="w-12 h-12 rounded-xl bg-cyan-500/20 flex items-center justify-center">
+                <span class="text-2xl">🎓</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="glass rounded-2xl p-5 border-l-4 border-purple-500">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-text-muted text-sm">Profesores Únicos</p>
+                <p class="text-3xl font-bold text-purple-400 mt-1" id="stat-cbtis-profesores">0</p>
+              </div>
+              <div class="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center">
+                <span class="text-2xl">👨‍🏫</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tabla de registros -->
+        <div class="glass rounded-2xl p-6">
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+            <h3 class="text-lg font-semibold text-text-main">
+              📋 Registros de Hoy
+            </h3>
+            <div class="flex gap-3">
+              <input type="text" id="buscar-registro-cbtis" 
+                     placeholder="🔍 Buscar por nombre o ID..."
+                     oninput="filtrarRegistrosCBTis(this.value)"
+                     class="px-4 py-2 bg-surface-light border border-border-subtle rounded-xl text-text-main placeholder-text-muted focus:outline-none focus:border-primary transition-all">
+              <button onclick="cargarRegistrosCBTis()" class="px-4 py-2 bg-primary/20 hover:bg-primary/30 text-primary rounded-xl transition-all">
+                🔄 Actualizar
+              </button>
+            </div>
+          </div>
+          
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead>
+                <tr class="border-b border-border-subtle">
+                  <th class="text-left py-4 px-4 text-text-muted font-medium text-sm">#</th>
+                  <th class="text-left py-4 px-4 text-text-muted font-medium text-sm">Usuario</th>
+                  <th class="text-left py-4 px-4 text-text-muted font-medium text-sm">Tipo</th>
+                  <th class="text-left py-4 px-4 text-text-muted font-medium text-sm">Registro</th>
+                  <th class="text-left py-4 px-4 text-text-muted font-medium text-sm">Hora</th>
+                  <th class="text-left py-4 px-4 text-text-muted font-medium text-sm">Método</th>
+                  <th class="text-left py-4 px-4 text-text-muted font-medium text-sm">Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="tabla-registros-cbtis" class="divide-y divide-border-subtle">
+                <tr>
+                  <td colspan="7" class="text-center py-8 text-text-muted">
+                    <p>Cargando registros...</p>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- Historial general -->
     <section id="historial" class="p-6 lg:p-8" style="display:none;">
       <div class="glass rounded-2xl p-6">
@@ -4481,8 +4746,9 @@ if (window.speechSynthesis) {
 <script src="js/alumno-dashboard.js"></script>
 <script src="js/comunicacion.js"></script>
 <script src="js/prefectura.js"></script>
-<script src="js/qr-barcode.js"></script>
+<!-- <script src="js/qr-barcode.js"></script> --> <!-- DESHABILITADO: elementos no existen en HTML actual -->
 <script src="js/overlays.js"></script>
+<script src="js/registros-cbtis-admin.js"></script>
 
 <!-- Script que SOBRESCRIBE mostrarMiniAlumno para nueva UI -->
 <script>
@@ -4608,6 +4874,7 @@ console.log('✅ mostrarMiniAlumno sobrescrita para nueva UI');
 <script src="js/notificaciones.js"></script>
 <script src="js/reconocimiento-facial.js"></script>
 <script src="js/gestion-facial-admin.js"></script>
+<script src="js/password-system.js"></script>
 <script src="js/admin-grafica.js"></script>
 <script src="js/acceso-cbtis.js"></script>
 <script src="js/main.js"></script>
